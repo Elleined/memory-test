@@ -3,6 +3,7 @@ package com.memorytest.memorytest;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -13,6 +14,8 @@ public class MainApplication extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("mainFrame.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Memory Test");
+        stage.getIcons().add(new Image("memorytest.jpg"));
+        stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
     }

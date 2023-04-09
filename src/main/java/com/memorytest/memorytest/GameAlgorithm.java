@@ -10,13 +10,10 @@ public class GameAlgorithm {
         List<Integer> tiles = Arrays.asList(new Integer[25]);
         Collections.fill(tiles, 0);
 
-        generatedRandomLocations.forEach(i -> System.out.print(i + ", "));
         int i = 1;
         for (int location : generatedRandomLocations) {
             tiles.set(location, i++);
         }
-        System.out.println("=======");
-        tiles.forEach(c -> System.out.print(c + ", "));
         return tiles;
     }
 

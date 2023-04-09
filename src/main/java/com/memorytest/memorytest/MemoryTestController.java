@@ -1,16 +1,18 @@
 package com.memorytest.memorytest;
 
+import javafx.animation.PauseTransition;
 import javafx.beans.Observable;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -19,8 +21,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class MemoryTestController implements Initializable {
-    @FXML
-    private ComboBox<Integer> cbBombPicker;
     @FXML
     private GridPane mainFrame;
     @FXML
@@ -73,16 +73,21 @@ public class MemoryTestController implements Initializable {
     private Label lbl34;
     @FXML
     private Label lbl44;
+    @FXML
+    private ComboBox<Integer> cbNumberLevel;
+    @FXML
+    private ComboBox<Integer> cbDuration;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        initializeNumberLevels();
-        this.cbBombPicker.valueProperty().addListener(this::comboBoxItemPressed);
-
+        initializeLevelSelection();
+        initializeDurationSelection();
+        this.cbNumberLevel.valueProperty().addListener(this::numberLevelComboBoxItemSelected);
     }
 
-    private void comboBoxItemPressed(Observable observable) {
-        int selectedNumberLevel = cbBombPicker.getSelectionModel().getSelectedItem();
+    private void numberLevelComboBoxItemSelected(Observable observable) {
+
+        int selectedNumberLevel = cbNumberLevel.getSelectionModel().getSelectedItem();
 
         GameAlgorithm gameAlgorithm = new GameAlgorithm();
         List<Integer> gameTiles = gameAlgorithm.generateGameTiles(selectedNumberLevel);
@@ -92,20 +97,43 @@ public class MemoryTestController implements Initializable {
         while (levelItr.hasNext() && labelItr.hasNext()) {
             this.setFont(labelItr.next(), levelItr.next());
         }
+
+        Integer duration = cbDuration.getSelectionModel().getSelectedItem();
+        if (duration == null) {
+            this.labelList().forEach(label -> label.setVisible(false));
+            new Alert(Alert.AlertType.WARNING, "Please Select Duration Time").show();
+            return;
+        }
+
+        this.labelList().forEach(label -> label.setVisible(true));
+
+        // Set the label visible duration based on user selected in duration combo box
+        Duration delay = Duration.seconds(duration);
+        PauseTransition pause = new PauseTransition( delay );
+        pause.setOnFinished(e -> this.labelList().forEach(label -> label.setVisible(false)));
+        pause.play();
     }
 
     private void setFont(Label label, int level) {
         label.setText(String.valueOf(level));
         Font font = Font.font("Arial Black", FontWeight.BOLD, FontPosture.ITALIC, 45);
         label.setFont(font);
-        label.setTextAlignment(TextAlignment.CENTER);
     }
-    private void initializeNumberLevels() {
-        ObservableList<Integer> numberLevels = cbBombPicker.getItems();
+
+    private void initializeLevelSelection() {
+        ObservableList<Integer> numberLevels = cbNumberLevel.getItems();
         for (int i = 5; i < 26; i++) {
             numberLevels.add(i);
         }
-        cbBombPicker.setItems( numberLevels );
+        cbNumberLevel.setItems( numberLevels );
+    }
+
+    private void initializeDurationSelection() {
+        ObservableList<Integer> duration = cbDuration.getItems();
+        for (int i = 5; i <= 30; i+=5) {
+            duration.add(i);
+        }
+        cbDuration.setItems( duration );
     }
 
     private List<Label> labelList() {
