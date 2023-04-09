@@ -1,5 +1,6 @@
 package com.memorytest.memorytest;
 
+import javafx.beans.Observable;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -9,6 +10,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.TextAlignment;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -75,9 +77,15 @@ public class MemoryTestController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initializeNumberLevels();
+        this.cbBombPicker.valueProperty().addListener(this::comboBoxItemPressed);
+
+    }
+
+    private void comboBoxItemPressed(Observable observable) {
+        int selectedNumberLevel = cbBombPicker.getSelectionModel().getSelectedItem();
 
         GameAlgorithm gameAlgorithm = new GameAlgorithm();
-        List<Integer> gameTiles = gameAlgorithm.generateGameTiles(9);
+        List<Integer> gameTiles = gameAlgorithm.generateGameTiles(selectedNumberLevel);
 
         Iterator<Integer> levelItr = gameTiles.iterator();
         Iterator<Label> labelItr = this.labelList().iterator();
@@ -88,15 +96,13 @@ public class MemoryTestController implements Initializable {
 
     private void setFont(Label label, int level) {
         label.setText(String.valueOf(level));
-        Font font = level == 0
-                ? Font.font("Arial Black", FontWeight.THIN, FontPosture.REGULAR, 20)
-                : Font.font("Arial Black", FontWeight.BOLD, FontPosture.ITALIC, 45);
+        Font font = Font.font("Arial Black", FontWeight.BOLD, FontPosture.ITALIC, 45);
         label.setFont(font);
-        label.setVisible(false);
+        label.setTextAlignment(TextAlignment.CENTER);
     }
     private void initializeNumberLevels() {
         ObservableList<Integer> numberLevels = cbBombPicker.getItems();
-        for (int i = 1; i < 26; i++) {
+        for (int i = 5; i < 26; i++) {
             numberLevels.add(i);
         }
         cbBombPicker.setItems( numberLevels );
@@ -144,121 +150,145 @@ public class MemoryTestController implements Initializable {
 
     @FXML
     public void anchorPane10Clicked() {
+        lbl10.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane20Clicked() {
+        lbl20.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane30Clicked() {
+        lbl30.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane40Clicked() {
+        lbl40.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane01Clicked() {
+        lbl01.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane11Clicked() {
+        lbl11.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane21Clicked() {
+        lbl21.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane31Clicked() {
+        lbl31.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane41Clicked() {
+        lbl41.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane02Clicked() {
+        lbl02.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane12Clicked() {
+        lbl12.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane22Clicked() {
+        lbl22.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane32Clicked() {
+        lbl32.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane42Clicked() {
+        lbl42.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane03Clicked() {
+        lbl03.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane13Clicked() {
+        lbl13.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane23Clicked() {
+        lbl23.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane33Clicked() {
+        lbl33.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane43Clicked() {
+        lbl43.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane04Clicked() {
+        lbl04.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane14Clicked() {
+        lbl14.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane24Clicked() {
+        lbl24.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane34Clicked() {
+        lbl34.setVisible(true);
         System.out.println("Clicked");
     }
 
     @FXML
     public void anchorPane44Clicked() {
+        lbl44.setVisible(true);
         System.out.println("Clicked");
     }
 }
