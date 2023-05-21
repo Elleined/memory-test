@@ -182,13 +182,17 @@ public class MemoryTestController implements Initializable {
                 nextIndex = 0;
                 log.severe("You Lose!");
                 // Losing logic here
+                labelList().forEach(label -> label.setVisible(true));
                 return;
             }
             nextIndex++;
+            // Open the associated label of anchor pane
+            labelList().get(anchorPaneIndex).setVisible(true);
 
             if (nextIndex == selectedNumberLevel) {
                 log.info("You Win!");
                 // WIning logic here
+                labelList().forEach(label -> label.setVisible(true));
             }
         }));
     }
@@ -215,7 +219,6 @@ public class MemoryTestController implements Initializable {
         pause.setOnFinished(e -> this.labelList().forEach(label -> label.setVisible(false)));
         pause.play();
     }
-
 
     private List<Label> labelList() {
         return List.of(
