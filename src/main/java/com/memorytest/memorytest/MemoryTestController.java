@@ -5,9 +5,11 @@ import javafx.beans.Observable;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -15,10 +17,11 @@ import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
 
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 public class MemoryTestController implements Initializable {
     @FXML
@@ -78,46 +81,66 @@ public class MemoryTestController implements Initializable {
     @FXML
     private ComboBox<Integer> cbDuration;
 
+    @FXML
+    private AnchorPane anchorPane00;
+    @FXML
+    private AnchorPane anchorPane10;
+    @FXML
+    private AnchorPane anchorPane20;
+    @FXML
+    private AnchorPane anchorPane30;
+    @FXML
+    private AnchorPane anchorPane40;
+    @FXML
+    private AnchorPane anchorPane01;
+    @FXML
+    private AnchorPane anchorPane11;
+    @FXML
+    private AnchorPane anchorPane21;
+    @FXML
+    private AnchorPane anchorPane31;
+    @FXML
+    private AnchorPane anchorPane41;
+    @FXML
+    private AnchorPane anchorPane02;
+    @FXML
+    private AnchorPane anchorPane12;
+    @FXML
+    private AnchorPane anchorPane22;
+    @FXML
+    private AnchorPane anchorPane32;
+    @FXML
+    private AnchorPane anchorPane42;
+    @FXML
+    private AnchorPane anchorPane03;
+    @FXML
+    private AnchorPane anchorPane13;
+    @FXML
+    private AnchorPane anchorPane23;
+    @FXML
+    private AnchorPane anchorPane33;
+    @FXML
+    private AnchorPane anchorPane43;
+    @FXML
+    private AnchorPane anchorPane04;
+    @FXML
+    private AnchorPane anchorPane14;
+    @FXML
+    private AnchorPane anchorPane24;
+    @FXML
+    private AnchorPane anchorPane34;
+    @FXML
+    private AnchorPane anchorPane44;
+
+    private static final Logger log = Logger.getLogger(MemoryTestController.class.getName());
+    private final GameAlgorithm gameAlgorithm = new GameAlgorithm();
+    int nextIndex = 0;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initializeLevelSelection();
         initializeDurationSelection();
         this.cbNumberLevel.valueProperty().addListener(this::numberLevelComboBoxItemSelected);
-    }
-
-    private void numberLevelComboBoxItemSelected(Observable observable) {
-
-        int selectedNumberLevel = cbNumberLevel.getSelectionModel().getSelectedItem();
-
-        GameAlgorithm gameAlgorithm = new GameAlgorithm();
-        List<Integer> gameTiles = gameAlgorithm.generateGameTiles(selectedNumberLevel);
-
-        Iterator<Integer> levelItr = gameTiles.iterator();
-        Iterator<Label> labelItr = this.labelList().iterator();
-        while (levelItr.hasNext() && labelItr.hasNext()) {
-            this.setFont(labelItr.next(), levelItr.next());
-        }
-
-        Integer duration = cbDuration.getSelectionModel().getSelectedItem();
-        if (duration == null) {
-            this.labelList().forEach(label -> label.setVisible(false));
-            new Alert(Alert.AlertType.WARNING, "Please Select Duration Time").show();
-            return;
-        }
-
-        this.labelList().forEach(label -> label.setVisible(true));
-
-        // Set the label visible duration based on user selected in duration combo box
-        Duration delay = Duration.seconds(duration);
-        PauseTransition pause = new PauseTransition( delay );
-        pause.setOnFinished(e -> this.labelList().forEach(label -> label.setVisible(false)));
-        pause.play();
-    }
-
-    private void setFont(Label label, int level) {
-        label.setText(String.valueOf(level));
-        Font font = Font.font("Arial Black", FontWeight.BOLD, FontPosture.ITALIC, 45);
-        label.setFont(font);
     }
 
     private void initializeLevelSelection() {
@@ -136,8 +159,66 @@ public class MemoryTestController implements Initializable {
         cbDuration.setItems( duration );
     }
 
+    private void numberLevelComboBoxItemSelected(Observable observable) {
+
+        int selectedNumberLevel = cbNumberLevel.getSelectionModel().getSelectedItem();
+
+        List<Integer> gameTiles = gameAlgorithm.generateGameTiles(selectedNumberLevel);
+
+        Iterator<Integer> levelItr = gameTiles.iterator();
+        Iterator<Label> labelItr = this.labelList().iterator();
+        while (levelItr.hasNext() && labelItr.hasNext()) {
+            this.setFont(labelItr.next(), levelItr.next());
+        }
+        displayDelay();
+
+        anchorPaneList().forEach(anchorPane -> anchorPane.setOnMouseClicked(clicked -> {
+            int anchorPaneIndex = anchorPaneList().indexOf(anchorPane);
+            int mustIndexToOpen = gameAlgorithm.getIndexLocations().get(nextIndex);
+            log.info("Anchor pane index " + anchorPaneIndex);
+            log.info("Must index to open " + mustIndexToOpen);
+
+            if (anchorPaneIndex != mustIndexToOpen) {
+                nextIndex = 0;
+                log.severe("You Lose!");
+                // Losing logic here
+                return;
+            }
+            nextIndex++;
+
+            if (nextIndex == selectedNumberLevel) {
+                log.info("You Win!");
+                // WIning logic here
+            }
+        }));
+    }
+
+    private void setFont(Label label, int level) {
+        label.setText(String.valueOf(level));
+        Font font = Font.font("Arial Black", FontWeight.BOLD, FontPosture.ITALIC, 45);
+        label.setFont(font);
+    }
+
+    private void displayDelay() {
+        Integer duration = cbDuration.getSelectionModel().getSelectedItem();
+        if (duration == null) {
+            this.labelList().forEach(label -> label.setVisible(false));
+            new Alert(Alert.AlertType.WARNING, "Please Select Duration Time").show();
+            return;
+        }
+
+        this.labelList().forEach(label -> label.setVisible(true));
+
+        // Set the label visible duration based on user selected in duration combo box
+        Duration delay = Duration.seconds(duration);
+        PauseTransition pause = new PauseTransition( delay );
+        pause.setOnFinished(e -> this.labelList().forEach(label -> label.setVisible(false)));
+        pause.play();
+    }
+
+
     private List<Label> labelList() {
-        return Arrays.asList(
+        return List.of(
                 // Row 1
                 lbl00,
                 lbl10,
@@ -170,153 +251,39 @@ public class MemoryTestController implements Initializable {
                 lbl44
         );
     }
-
-    @FXML
-    public void anchorPane00Clicked() {
-        lbl00.setVisible(true);
+    private List<AnchorPane> anchorPaneList() {
+        return List.of(
+                // Row 1
+                anchorPane00,
+                anchorPane10,
+                anchorPane20,
+                anchorPane30,
+                anchorPane40,
+                // Row 2
+                anchorPane01,
+                anchorPane11,
+                anchorPane21,
+                anchorPane31,
+                anchorPane41,
+                // Row 3
+                anchorPane02,
+                anchorPane12,
+                anchorPane22,
+                anchorPane32,
+                anchorPane42,
+                // Row 4
+                anchorPane03,
+                anchorPane13,
+                anchorPane23,
+                anchorPane33,
+                anchorPane43,
+                // Row 5
+                anchorPane04,
+                anchorPane14,
+                anchorPane24,
+                anchorPane34,
+                anchorPane44
+        );
     }
 
-    @FXML
-    public void anchorPane10Clicked() {
-        lbl10.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane20Clicked() {
-        lbl20.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane30Clicked() {
-        lbl30.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane40Clicked() {
-        lbl40.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane01Clicked() {
-        lbl01.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane11Clicked() {
-        lbl11.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane21Clicked() {
-        lbl21.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane31Clicked() {
-        lbl31.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane41Clicked() {
-        lbl41.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane02Clicked() {
-        lbl02.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane12Clicked() {
-        lbl12.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane22Clicked() {
-        lbl22.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane32Clicked() {
-        lbl32.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane42Clicked() {
-        lbl42.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane03Clicked() {
-        lbl03.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane13Clicked() {
-        lbl13.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane23Clicked() {
-        lbl23.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane33Clicked() {
-        lbl33.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane43Clicked() {
-        lbl43.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane04Clicked() {
-        lbl04.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane14Clicked() {
-        lbl14.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane24Clicked() {
-        lbl24.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane34Clicked() {
-        lbl34.setVisible(true);
-        System.out.println("Clicked");
-    }
-
-    @FXML
-    public void anchorPane44Clicked() {
-        lbl44.setVisible(true);
-        System.out.println("Clicked");
-    }
 }
