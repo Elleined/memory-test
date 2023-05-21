@@ -5,7 +5,6 @@ import javafx.beans.Observable;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -19,7 +18,6 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
@@ -134,7 +132,8 @@ public class MemoryTestController implements Initializable {
 
     private static final Logger log = Logger.getLogger(MemoryTestController.class.getName());
     private final GameAlgorithm gameAlgorithm = new GameAlgorithm();
-    int nextIndex = 0;
+    private int nextIndex = 0;
+    private int selectedNumberLevel = 0;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -161,7 +160,7 @@ public class MemoryTestController implements Initializable {
 
     private void numberLevelComboBoxItemSelected(Observable observable) {
 
-        int selectedNumberLevel = cbNumberLevel.getSelectionModel().getSelectedItem();
+        this.selectedNumberLevel = cbNumberLevel.getSelectionModel().getSelectedItem();
 
         List<Integer> gameTiles = gameAlgorithm.generateGameTiles(selectedNumberLevel);
 
@@ -171,30 +170,6 @@ public class MemoryTestController implements Initializable {
             this.setFont(labelItr.next(), levelItr.next());
         }
         displayDelay();
-
-        anchorPaneList().forEach(anchorPane -> anchorPane.setOnMouseClicked(clicked -> {
-            int anchorPaneIndex = anchorPaneList().indexOf(anchorPane);
-            int mustIndexToOpen = gameAlgorithm.getIndexLocations().get(nextIndex);
-            log.info("Anchor pane index " + anchorPaneIndex);
-            log.info("Must index to open " + mustIndexToOpen);
-
-            if (anchorPaneIndex != mustIndexToOpen) {
-                nextIndex = 0;
-                log.severe("You Lose!");
-                // Losing logic here
-                labelList().forEach(label -> label.setVisible(true));
-                return;
-            }
-            nextIndex++;
-            // Open the associated label of anchor pane
-            labelList().get(anchorPaneIndex).setVisible(true);
-
-            if (nextIndex == selectedNumberLevel) {
-                log.info("You Win!");
-                // WIning logic here
-                labelList().forEach(label -> label.setVisible(true));
-            }
-        }));
     }
 
     private void setFont(Label label, int level) {
@@ -216,8 +191,37 @@ public class MemoryTestController implements Initializable {
         // Set the label visible duration based on user selected in duration combo box
         Duration delay = Duration.seconds(duration);
         PauseTransition pause = new PauseTransition( delay );
-        pause.setOnFinished(e -> this.labelList().forEach(label -> label.setVisible(false)));
+        pause.setOnFinished(e -> {
+            this.labelList().forEach(label -> label.setVisible(false));
+            anchorPaneList().forEach(this::anchorPaneClicked);
+        });
         pause.play();
+    }
+
+    private void anchorPaneClicked(AnchorPane anchorPane) {
+        anchorPane.setOnMouseClicked(clicked -> {
+            int anchorPaneIndex = anchorPaneList().indexOf(anchorPane);
+            int mustIndexToOpen = gameAlgorithm.getIndexLocations().get(nextIndex);
+            log.info("Anchor pane index " + anchorPaneIndex);
+            log.info("Must index to open " + mustIndexToOpen);
+
+            if (anchorPaneIndex != mustIndexToOpen) {
+                nextIndex = 0;
+                log.severe("You Lose!");
+                // Losing logic here
+                labelList().forEach(label -> label.setVisible(true));
+                return;
+            }
+            nextIndex++;
+            // Open the associated label of anchor pane
+            labelList().get(anchorPaneIndex).setVisible(true);
+
+            if (nextIndex == selectedNumberLevel) {
+                log.info("You Win!");
+                // WIning logic here
+                labelList().forEach(label -> label.setVisible(true));
+            }
+        });
     }
 
     private List<Label> labelList() {
@@ -288,5 +292,4 @@ public class MemoryTestController implements Initializable {
                 anchorPane44
         );
     }
-
 }
