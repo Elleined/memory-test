@@ -20,7 +20,6 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
@@ -172,7 +171,7 @@ public class MemoryTestController implements Initializable {
         while (levelItr.hasNext() && labelItr.hasNext()) {
             this.setFont(labelItr.next(), levelItr.next());
         }
-        displayDelay();
+        displayDelayAndThenAddMouseClickedInAnchorPanes();
     }
 
     private void setFont(Label label, int level) {
@@ -181,7 +180,7 @@ public class MemoryTestController implements Initializable {
         label.setFont(font);
     }
 
-    private void displayDelay() {
+    private void displayDelayAndThenAddMouseClickedInAnchorPanes() {
         Integer duration = cbDuration.getSelectionModel().getSelectedItem();
         if (duration == null) {
             this.labelList().forEach(label -> label.setVisible(false));
@@ -210,47 +209,37 @@ public class MemoryTestController implements Initializable {
 
             if (anchorPaneIndex != mustIndexToOpen) {
                 nextIndex = 0;
-                log.severe("You Lose!");
-                // Losing logic here
-                labelList().forEach(label -> label.setVisible(true));
-                anchorPaneList().forEach(pane -> pane.setOnMouseClicked(null));
-
-                AlertFactory.showConfirmAlert("You didn't guessed it all correctly. Its okay, you can try again!", ButtonType.OK);
-
-                ButtonType yesOrNo = AlertFactory.showConfirmAlert("Do you want to play again? ");
-                if (yesOrNo != ButtonType.OK) {
-                    AlertFactory.showConfirmAlert("Thanks for Playing", ButtonType.OK);
-                    Platform.exit();
-                }
-
-                labelList().forEach(label -> label.setVisible(false));
+                log.severe("You didn't guessed it all correctly. Its okay, you can try again!");
+                playAgain("You didn't guessed it all correctly. Its okay, you can try again!");
                 return;
             }
             nextIndex++;
             // Open the associated label of anchor pane
             labelList().get(anchorPaneIndex).setVisible(true);
 
-            if (!isPlayerWin()) return;
-
-            log.info("You Win!");
-            // WIning logic here
-            labelList().forEach(label -> label.setVisible(true));
-            anchorPaneList().forEach(pane -> pane.setOnMouseClicked(null));
-
-            AlertFactory.showConfirmAlert("Wow you guessed it all correctly. You're a genius!", ButtonType.OK);
-            ButtonType yesOrNo = AlertFactory.showConfirmAlert("Do you want to play again?");
-            if (yesOrNo != ButtonType.OK) {
-                AlertFactory.showConfirmAlert("Thanks for Playing", ButtonType.OK);
-                Platform.exit();
+            if (nextIndex != selectedNumberLevel) {
+                log.fine("Not yet wins player is still guessing the next index to open");
+                return;
             }
 
-            labelList().forEach(label -> label.setVisible(false));
+            log.info("Wow you guessed it all correctly. You're a genius!");
+            playAgain("Wow you guessed it all correctly. You're a genius!");
         });
     }
 
-    private boolean isPlayerWin() {
-        return nextIndex == selectedNumberLevel;
+    private void playAgain(String message) {
+        labelList().forEach(label -> label.setVisible(true));
+        anchorPaneList().forEach(pane -> pane.setOnMouseClicked(null));
+
+        AlertFactory.showConfirmAlert(message, ButtonType.OK);
+        ButtonType yesOrNo = AlertFactory.showConfirmAlert("Do you want to play again? Don't forget to choose new level");
+        if (yesOrNo != ButtonType.OK) {
+            AlertFactory.showConfirmAlert("Thanks for Playing", ButtonType.OK);
+            Platform.exit();
+        }
+        labelList().forEach(label -> label.setVisible(false));
     }
+
     private List<Label> labelList() {
         return List.of(
                 // Row 1
