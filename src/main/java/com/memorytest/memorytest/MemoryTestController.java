@@ -210,6 +210,7 @@ public class MemoryTestController implements Initializable {
                 log.severe("You Lose!");
                 // Losing logic here
                 labelList().forEach(label -> label.setVisible(true));
+                anchorPaneList().forEach(pane -> pane.setOnMouseClicked(null));
                 return;
             }
             nextIndex++;
@@ -220,6 +221,8 @@ public class MemoryTestController implements Initializable {
                 log.info("You Win!");
                 // WIning logic here
                 labelList().forEach(label -> label.setVisible(true));
+                anchorPaneList().forEach(pane -> pane.setOnMouseClicked(null));
+                
             }
         });
     }
