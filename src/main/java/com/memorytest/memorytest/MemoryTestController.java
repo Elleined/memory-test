@@ -1,11 +1,13 @@
 package com.memorytest.memorytest;
 
 import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
@@ -18,6 +20,7 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
@@ -211,22 +214,43 @@ public class MemoryTestController implements Initializable {
                 // Losing logic here
                 labelList().forEach(label -> label.setVisible(true));
                 anchorPaneList().forEach(pane -> pane.setOnMouseClicked(null));
+
+                AlertFactory.showConfirmAlert("You didn't guessed it all correctly. Its okay, you can try again!", ButtonType.OK);
+
+                ButtonType yesOrNo = AlertFactory.showConfirmAlert("Do you want to play again? ");
+                if (yesOrNo != ButtonType.OK) {
+                    AlertFactory.showConfirmAlert("Thanks for Playing", ButtonType.OK);
+                    Platform.exit();
+                }
+
+                labelList().forEach(label -> label.setVisible(false));
                 return;
             }
             nextIndex++;
             // Open the associated label of anchor pane
             labelList().get(anchorPaneIndex).setVisible(true);
 
-            if (nextIndex == selectedNumberLevel) {
-                log.info("You Win!");
-                // WIning logic here
-                labelList().forEach(label -> label.setVisible(true));
-                anchorPaneList().forEach(pane -> pane.setOnMouseClicked(null));
-                
+            if (!isPlayerWin()) return;
+
+            log.info("You Win!");
+            // WIning logic here
+            labelList().forEach(label -> label.setVisible(true));
+            anchorPaneList().forEach(pane -> pane.setOnMouseClicked(null));
+
+            AlertFactory.showConfirmAlert("Wow you guessed it all correctly. You're a genius!", ButtonType.OK);
+            ButtonType yesOrNo = AlertFactory.showConfirmAlert("Do you want to play again?");
+            if (yesOrNo != ButtonType.OK) {
+                AlertFactory.showConfirmAlert("Thanks for Playing", ButtonType.OK);
+                Platform.exit();
             }
+
+            labelList().forEach(label -> label.setVisible(false));
         });
     }
 
+    private boolean isPlayerWin() {
+        return nextIndex == selectedNumberLevel;
+    }
     private List<Label> labelList() {
         return List.of(
                 // Row 1
